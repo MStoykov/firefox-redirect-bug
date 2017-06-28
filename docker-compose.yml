@@ -1,0 +1,38 @@
+version: '2'
+services:
+  host1:
+    image: nginx:1.12
+    volumes:
+     - ./nginx-host1.conf:/etc/nginx/nginx.conf
+     - ./star.example.com.crt:/etc/ssl/certs/star.example.com.crt
+     - ./star.example.com.key:/etc/ssl/private/star.example.com.key
+     - ./dhparam.pem:/etc/ssl/certs/dhparam.pem
+    networks:
+      mynet:
+        ipv4_address: 172.129.0.5
+    command: "nginx -g 'daemon off;'"
+  host2:
+    image: nginx:1.12
+    volumes:
+     - ./nginx-host2.conf:/etc/nginx/nginx.conf
+     - ./star.example.com.crt:/etc/ssl/certs/star.example.com.crt
+     - ./star.example.com.key:/etc/ssl/private/star.example.com.key
+     - ./dhparam.pem:/etc/ssl/certs/dhparam.pem
+    networks:
+      mynet:
+        ipv4_address: 172.129.0.102
+    command: "nginx -g 'daemon off;'"
+  dns:
+    image: resystit/bind9
+    networks:
+      mynet:
+        ipv4_address: 172.129.0.128
+    volumes:
+     - ./named.conf:/etc/bind/named.conf
+     - ./example.com.db:/etc/bind/example.com.db
+networks:
+  mynet:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 172.129.0.0/24
